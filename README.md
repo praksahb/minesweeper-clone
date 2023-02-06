@@ -36,8 +36,10 @@ displayBoard would be a character array or string array.
     And for a value of 0 it should be running a checkAdjacentCells() functions for the current value. 
 
 -GameBoard - will be int matrix of size (x,y)
-    Public functions: 
+    Public functions:-
+
     1. generateBoardSize(int m, int n) : used to create a board of size m,n
+    
     2. initializegameBoard(std::pair<int, int> xycoords) : mines should not be spawned on xycoords
     
     3.  checkAdjacentCells((int x, int y) || std::pair<int, int> xy) - a simple function which will check all legal adjacent tiles values. In case of one of the tiles being 0, the function will be called again at the new coords. 
