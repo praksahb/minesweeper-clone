@@ -25,11 +25,11 @@ Main classes to be created:
     1. stl::pair<int, int> inputXY(int x, int y) : returns x,y values(internally should check if legal values(>= 0 && < x || y))  
     2. (Additional/Secondary) : void putFlag(int x, int y)
 
--DisplayBoard - will show the board in the console //(instead of being a seperate class displayBoard can be implemented inside Gameboard class- will solve access issues for the 3rd unnamed function)
+-DisplayBoard - will show the board in the console //(instead of being a seperate class displayBoard can be implemented inside Gameboard class- will solve access issues for the 2nd unnamed function)
 displayBoard would be a character array or string array.
 
     1. printBoard() will be printing the whole board of size (m,n)
-    
+
     2. Unnamed function(stl::pair<int, int> val): Player::inputXY(x,y) should trigger this function to run which should be checking the valid x,y values in the gameBoard for int comparisons checking for:-
         -1 for bomb,
         0 for no adjacent bombs,
@@ -38,13 +38,16 @@ displayBoard would be a character array or string array.
     And for a value of 0 it should be running a checkAdjacentCells() functions for the current value. 
 
 -GameBoard - will be int matrix of size (x,y)
+
     Public functions:-
 
     1. generateBoardSize(int m, int n) : used to create a board of size m,n
 
     2. initializegameBoard(std::pair<int, int> xycoords) : mines should not be spawned on xycoords
     
-    3.  checkAdjacentCells((int x, int y) || std::pair<int, int> xy) - a simple function which will check all legal adjacent tiles values. In case of one of the tiles being 0, the function will be called again at the new coords. 
+    3.  checkAdjacentCells((int x, int y) || std::pair<int, int> xy) - a simple function which will check all legal adjacent tiles values. 
+    In case of one of the tiles being 0, 
+    the function will be called again at the new coords.
     -making checkAdjacentCells a public function can create issues as it can be called recursively from a 0 value case.
 
     Private functions: 
