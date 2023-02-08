@@ -1,24 +1,16 @@
-#include <bits/stdc++.h>
+#include <iostream>
 #include "playBoard.h"
 
-int main()
+void gameLoop()
 {
     srand(time(0));
-    // b->printBoard();
-    // b->prntmine();
-    // cout << "Enter x and y: ";
-    // int x = 0, y = 0;
-    // cin >> x >> y;
-    // cout << endl;
-    // pb->printBoard();
-    // pb->openCell(x, y);
 
     // create a game loop
     GameState gameState = on;
     while (true)
     {
         cout << "Minesweeper Clone:\n";
-        cout << "Options:\n1. Play Game\n2. Exit\n";
+        cout << "Choose Options:\n1. Play Game\n2. Exit\n";
         cout << "Enter Choice: ";
         int n = 0;
         cin >> n;
@@ -27,9 +19,9 @@ int main()
         {
             int x = 0, y = 0, mines = 0;
             cout << "Enter width: ";
-            cin >> x;
-            cout << "\nEnter height: ";
             cin >> y;
+            cout << "\nEnter height: ";
+            cin >> x;
             cout << "\nEnter no. of mines: ";
             cin >> mines;
             cout << endl;
@@ -37,6 +29,7 @@ int main()
             while (pb->getState() != off)
             {
                 pb->printBoard();
+                cout << "How To Play:\n- User will input x and y(coordinates where they want to click)\n";
                 cout << "Enter value for x and y: ";
                 int x = 0, y = 0;
                 cin >> x >> y;
@@ -70,4 +63,9 @@ int main()
             break;
         }
     }
+}
+
+int main()
+{
+    gameLoop();
 }

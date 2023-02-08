@@ -1,20 +1,7 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
 #include "gameBoard.h"
-using namespace std;
 
-/*
--DisplayBoard - will show the board in the console //(instead of being a seperate class displayBoard can be implemented inside Gameboard class- will solve access issues for the 2nd unnamed function)
-displayBoard would be a character array or string array.
-
-    1. printBoard() will be printing the whole board of size (m,n)
-
-    2. Unnamed function(stl::pair<int, int> val): Player::inputXY(x,y) should trigger this function to run which should be checking the valid x,y values in the gameBoard for int comparisons checking for:-
-        -1 for bomb,
-        0 for no adjacent bombs,
-        positive int value which signifies no. of bombs in adjacency.
-    This function is going to need access to the gameBoard class for getting its values at the index.
-    And for a value of 0 it should be running a checkAdjacentCells() functions for the current value.
-*/
 enum CellValue
 {
     invalid = -2,
@@ -36,7 +23,6 @@ class PlayBoard
     std::vector<std::vector<char>> board;
     vector<vector<bool>> visited;
     GameBoard *gboard;
-    stack<pair<int, int>> zeroes;
     int winCondition;
     int visitedNodes;
     GameState gameState;
@@ -133,6 +119,7 @@ public:
         }
     }
 
+    // recursive function - not working
     void checkCell(int x, int y)
     {
         // check if x and y are legal
@@ -193,6 +180,45 @@ public:
 
     void printBoard()
     {
+        cout << endl;
+        cout << "Coords   ";
+        for (int i = 0; i < my; i++)
+        {
+            cout << " " << i << "  ";
+        }
+        cout << endl;
+        cout << '\t';
+        for (int i = 0; i < my; i++)
+        {
+            cout << "----";
+        }
+        cout << '-' << endl;
+
+        for (int i = 0; i < mx; i++)
+        {
+            for (int j = 0; j < my; j++)
+            {
+                if (j == 0)
+                {
+                    cout << i << "\t|";
+                }
+                cout << " " << board[i][j] << " |";
+            }
+            cout << endl;
+            cout << '\t';
+            for (int j = 0; j < my; j++)
+            {
+                cout << "----";
+            }
+            cout << '-' << endl;
+        }
+    }
+};
+
+// printBoard original function
+/*
+ void printBoard()
+    {
         cout << "-------------------------------------------" << endl;
 
         for (int i = 0; i < mx; i++)
@@ -215,4 +241,4 @@ public:
             cout << "-------------------------------------------" << endl;
         }
     }
-};
+*/
