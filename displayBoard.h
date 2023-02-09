@@ -15,11 +15,14 @@ enum GameState
     off = -1,
     newGame = 0,
     on = 1,
+    gameWon,
+    gameLost,
 };
 
-class PlayBoard
+// game board / display board
+class DisplayBoard
 {
-    const int mx, my;
+    const int maxXrows, maxYcols;
     std::vector<std::vector<char>> board;
     vector<vector<bool>> visited;
     GameBoard *gboard;
@@ -31,12 +34,12 @@ class PlayBoard
     int directionY[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 
 public:
-    PlayBoard(int x, int y, int mines) : mx(x),
-                                         my(y),
-                                         board(mx, vector<char>(my, ' ')),
-                                         visited(mx, vector<bool>(my, false))
+    DisplayBoard(int x, int y, int mines) : maxXrows(x),
+                                            maxYcols(y),
+                                            board(maxXrows, vector<char>(maxYcols, ' ')),
+                                            visited(maxXrows, vector<bool>(maxYcols, false))
     {
-        winCondition = mx * my - mines;
+        winCondition = maxXrows * maxYcols - mines;
         gboard = new GameBoard(x, y, mines);
         visitedNodes = 0;
         gameState = newGame;
@@ -47,75 +50,87 @@ public:
         return gameState;
     }
 
-    bool gameWon()
-    {
-        return visitedNodes >= winCondition;
-    }
-
     void initializeGameBoard(int x, int y)
     {
         gboard->fillMines({x, y});
         gboard->incrementAdjacents();
-        // openCell(x, y);
-        checkCellDFS(x, y);
         gameState = on;
-    }
-
-    void setState(GameState gs)
-    {
-        gameState = gs;
+        checkCellDFS(x, y);
     }
 
     void checkCellDFS(int x, int y)
     {
-        // initialize temp stack
+        // initialize empty temp stack
         stack<pair<int, int>> stk;
         stk.push({x, y});
 
         while (!stk.empty())
         {
             pair<int, int> curr = stk.top();
-            stk.pop(); // pop early to avoid it duplicating. or use queue
+            stk.pop(); // pop early to avoid it duplicating. or use queue?
             int x = curr.first;
             int y = curr.second;
             // check if valid location
-            if (x >= 0 && x < mx && y >= 0 && y < my)
+            if (x >= 0 && x < maxXrows && y >= 0 && y < maxYcols)
             {
                 // check if location not yet checked
                 if (visited[x][y] == false)
                 {
                     // check value from gboard
                     int val = gboard->getCellValue(x, y);
+
+                    // Case 1 - blank cell
                     if (val == mempty)
                     {
                         board[x][y] = '0';
                         visited[x][y] = true;
-                        visitedNodes++;
+                        if (++visitedNodes == winCondition)
+                        {
+                            updateAllMines();
+                            gameState = gameWon;
+                        }
+                        // add all 8 adjacent x,y values to stack
                         for (int i = 0; i < 8; i++)
                         {
-                            // add adjacent x,y values to stack
                             int adjx = x + directionX[i];
                             int adjy = y + directionY[i];
                             stk.push({adjx, adjy});
                         }
                     }
+                    // Case 2 - bomb in cell
                     else if (val == mine)
                     {
-                        board[x][y] = 'X';
-                        visitedNodes++;
-                        // bomb hit exit loop change bool values
+                        updateAllMines();
                         gameState = off;
                         return;
                     }
+                    // Case 3 - Number in cell
                     else
                     {
-                        // value is no. of bombs around it
+                        // value is no. of bombs around it (maxVal == 8)
                         board[x][y] = static_cast<char>(val + '0');
                         visited[x][y] = true;
-                        visitedNodes++;
+                        if (++visitedNodes == winCondition)
+                        {
+                            updateAllMines();
+                            gameState = gameWon;
+                        }
                     }
                 }
             }
+        }
+    }
+
+    void updateAllMines()
+    {
+        // use stack of mines to display all the mines.
+        // try without using a copy of stack
+        stack<pair<int, int>> temp = gboard->getMines();
+        while (!temp.empty())
+        {
+            pair<int, int> xy = temp.top();
+            board[xy.first][xy.second] = 'X';
+            temp.pop();
         }
     }
 
@@ -123,7 +138,7 @@ public:
     void checkCell(int x, int y)
     {
         // check if x and y are legal
-        if (x < 0 || y < 0 || x >= mx || y >= my)
+        if (x < 0 || y < 0 || x >= maxXrows || y >= maxYcols)
         {
             return;
         }
@@ -182,21 +197,21 @@ public:
     {
         cout << endl;
         cout << "Coords   ";
-        for (int i = 0; i < my; i++)
+        for (int i = 0; i < maxYcols; i++)
         {
             cout << " " << i << "  ";
         }
         cout << endl;
         cout << '\t';
-        for (int i = 0; i < my; i++)
+        for (int i = 0; i < maxYcols; i++)
         {
             cout << "----";
         }
         cout << '-' << endl;
 
-        for (int i = 0; i < mx; i++)
+        for (int i = 0; i < maxXrows; i++)
         {
-            for (int j = 0; j < my; j++)
+            for (int j = 0; j < maxYcols; j++)
             {
                 if (j == 0)
                 {
@@ -206,7 +221,7 @@ public:
             }
             cout << endl;
             cout << '\t';
-            for (int j = 0; j < my; j++)
+            for (int j = 0; j < maxYcols; j++)
             {
                 cout << "----";
             }
@@ -214,31 +229,3 @@ public:
         }
     }
 };
-
-// printBoard original function
-/*
- void printBoard()
-    {
-        cout << "-------------------------------------------" << endl;
-
-        for (int i = 0; i < mx; i++)
-        {
-            for (int j = 0; j < my; j++)
-            {
-                if (j == 0)
-                    cout << "|     |";
-                cout << " " << board[i][j] << " |";
-            }
-            cout << endl;
-            cout << "-------------------------------------------" << endl;
-            for (int j = 0; j < my; j++)
-            {
-                if (j == 0)
-                    cout << "| x,y |";
-                cout << i << "," << j << "|";
-            }
-            cout << endl;
-            cout << "-------------------------------------------" << endl;
-        }
-    }
-*/

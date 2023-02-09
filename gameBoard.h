@@ -44,6 +44,11 @@ public:
     {
     }
 
+    stack<pair<int, int>> getMines()
+    {
+        return mines;
+    }
+
     int getCellValue(int x, int y)
     {
         // invalid index
