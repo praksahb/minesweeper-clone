@@ -12,7 +12,8 @@ private:
     int gameMenu()
     {
         cout << "===================================\n\n";
-        cout << "Minesweeper Clone:\n";
+        cout << "Minesweeper Clone:\n\n";
+        cout << "===================================\n\n";
         cout << "Choose Options:\n1. Play Game\n2. Change board size\n3. Exit\n";
         cout << "Enter Choice: ";
         int n = 0;

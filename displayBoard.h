@@ -2,14 +2,6 @@
 #include <vector>
 #include "gameBoard.h"
 
-enum CellValue
-{
-    invalid = -2,
-    mine = -1,
-    mempty = 0,
-    notempty,
-};
-
 enum GameState
 {
     off = -1,
@@ -43,6 +35,10 @@ public:
         gboard = new GameBoard(x, y, mines);
         visitedNodes = 0;
         gameState = newGame;
+    }
+    virtual ~DisplayBoard()
+    {
+        delete gboard;
     }
 
     GameState getState()

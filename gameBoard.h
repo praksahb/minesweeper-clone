@@ -2,6 +2,14 @@
 #include <stack>
 using namespace std;
 
+enum CellValue
+{
+    invalid = -2,
+    mine = -1,
+    mempty = 0,
+    notempty = 1,
+};
+
 class GameBoard
 {
 private:
@@ -27,7 +35,7 @@ private:
                 if (i >= 0 && i < mx && j >= 0 && j < my)
                 {
                     // bomb check
-                    if (board[i][j] != 9 && !(i == xy.first && j == xy.second))
+                    if (board[i][j] != mine_val && !(i == xy.first && j == xy.second))
                     {
                         board[i][j]++;
                     }
