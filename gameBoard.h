@@ -1,105 +1,221 @@
 #include <iostream>
 #include <stack>
+#include "board.h"
+
 using namespace std;
 
-enum CellValue
+enum GameState
 {
-    invalid = -2,
-    mine = -1,
-    mempty = 0,
-    notempty = 1,
+    off = -1,
+    newGame = 0,
+    on = 1,
+    gameWon,
+    gameLost,
 };
 
 class GameBoard
 {
 private:
-    const int mine_val = -1;
-    const int mx, my;
+    const int max_rows, max_cols;
     int maxmines;
-    vector<vector<int>> board;
-    stack<pair<int, int>> mines;
+    Board *board;
+    GameState gameState;
+    int visitedNodes;
+    int totalValidCells;
 
-    int GetVal(int x, int y)
+public:
+    GameBoard(int x, int y, int total_mines) : max_rows(x), max_cols(y), maxmines(total_mines)
     {
-        return board[x][y];
+        board = new Board(x, y);
+        gameState = newGame;
+        totalValidCells = max_rows * max_cols - total_mines;
+        visitedNodes = 0;
+    }
+    ~GameBoard()
+    {
+        delete board;
+    }
+    GameState getState()
+    {
+        return gameState;
     }
 
-    void IncrementAdjacents(pair<int, int> xy)
+    void initializeGameBoard(int start_x, int start_y)
     {
-        // increment all adjacents by 1 if adjacents is not a bomb itself
-        for (int i = xy.first - 1; i <= xy.first + 1; i++)
+        fillMines(start_x, start_y);
+        gameState = on;
+        checkCellDFS(start_x, start_y);
+    }
+
+    void fillMines(int start_x, int start_y)
+    {
+        int i = 0;
+        while (i < maxmines)
         {
-            for (int j = xy.second - 1; j <= xy.second + 1; j++)
+
+            int pos_x = rand() % max_rows;
+            int pos_y = rand() % max_cols;
+
+            // return values: 0 is invalid,
+            // 1 is correct and
+            // -1 is already mine
+            int val = board->addMine(pos_x, pos_y, start_x, start_y);
+            if (val == 1)
             {
-                // boundary check
-                if (i >= 0 && i < mx && j >= 0 && j < my)
+                i++;
+                // reset cellNode.adjacentBombs value
+                board->resetValue(pos_x, pos_y);
+                board->incrementAdjacents(pos_x, pos_y);
+            }
+        }
+    }
+
+    void checkCellDFS(int x, int y)
+    {
+        // initialize empty temp stack
+        stack<pair<int, int>> stk;
+        stk.push({x, y});
+
+        while (!stk.empty())
+        {
+            pair<int, int> curr = stk.top();
+            stk.pop(); // pop early to avoid it duplicating. or use queue?
+            int pos_x = curr.first;
+            int pos_y = curr.second;
+            // check if valid location
+            if (pos_x >= 0 && pos_x < max_rows && pos_y >= 0 && pos_y < max_cols)
+            {
+                // if cell is not visited yet
+                if (board->isCellVisited(pos_x, pos_y) == false)
                 {
-                    // bomb check
-                    if (board[i][j] != mine_val && !(i == xy.first && j == xy.second))
+                    bool isCellBomb = board->isCellBomb(pos_x, pos_y);
+
+                    // Case 1 - bomb in cell
+                    if (isCellBomb == true)
                     {
-                        board[i][j]++;
+                        // update all cells
+                        gameState = gameLost;
+                        return;
+                    }
+
+                    int adjBombs = board->getAdjBombs(pos_x, pos_y);
+                    // Case 1.1 - blank cell
+                    if (!isCellBomb && adjBombs == 0)
+                    {
+                        board->setVisited(pos_x, pos_y);
+                        visitedNodes++;
+                        if (visitedNodes == totalValidCells)
+                        {
+                            // update all cells
+                            gameState = gameWon;
+                            return;
+                        }
+                        // add all 8 adjacent x,y values to stack
+                        for (int i = 0; i < 8; i++)
+                        {
+                            int adjx = pos_x + board->getDirX(i);
+                            int adjy = pos_y + board->getDirY(i);
+                            stk.push({adjx, adjy});
+                        }
+                    }
+                    // Case 1.2 - Number in cell
+                    if (!isCellBomb && adjBombs > 0)
+                    {
+                        // value is no. of bombs around it (maxVal == 8)
+                        board->setVisited(pos_x, pos_y);
+                        visitedNodes++;
+                        if (visitedNodes == totalValidCells)
+                        {
+                            // update all cells
+                            gameState = gameWon;
+                        }
                     }
                 }
             }
         }
     }
 
-public:
-    GameBoard(int x, int y, int mines) : mx(x), my(y), maxmines(mines), board(mx, vector<int>(my, 0))
+    void PrintFirstRow()
     {
-    }
-    ~GameBoard()
-    {
-    }
-
-    stack<pair<int, int>> getMines()
-    {
-        return mines;
-    }
-
-    int getCellValue(int x, int y)
-    {
-        // invalid index
-        if (x < 0 && x >= mx && y < 0 && y >= my)
+        // prints first row
+        cout << '\n';
+        cout << "Coords   ";
+        for (int i = 0; i < max_cols; i++)
         {
-            return -2;
+            if (i < 10)
+            {
+                cout << " ";
+            }
+            cout << ' ' << i << "  ";
         }
-
-        return GetVal(x, y);
+        cout << '\n';
+        cout << '\t';
+        for (int i = 0; i < max_cols; i++)
+        {
+            cout << "-----";
+        }
+        cout << '-' << '\n';
     }
 
-    // not very space optimum O(2^n) where n = no. of mines
-    void fillMines(pair<int, int> xy)
+    void PrintMatrix()
     {
-        if (mines.size() == maxmines)
-        {
-            return;
-        }
-        int x = (rand() % mx);
-        int y = (rand() % my);
+        // prints the matrix
 
-        if (x == xy.first && y == xy.second || board[x][y] != 0)
+        for (int i = 0; i < max_rows; i++)
         {
-            fillMines(xy);
-        }
-        else
-        {
-            board[x][y] = mine_val;
-            mines.push({x, y});
-            fillMines(xy);
+            for (int j = 0; j < max_cols; j++)
+            {
+                if (j == 0)
+                {
+                    cout << i << "\t| ";
+                }
+                // can use cell.visited instead
+                if (gameState == newGame || gameState == on)
+                {
+                    if (board->isCellVisited(i, j) == true) // will be true for in game
+                    {
+                        if (board->isCellBomb(i, j))
+                        {
+                            string temp = "*";
+                            cout << " * | ";
+                        }
+                        else
+                        {
+                            cout << ' ' << board->getAdjBombs(i, j) << " | ";
+                        }
+                    }
+                    else
+                    {
+                        cout << "   | ";
+                    }
+                }
+                else
+                {
+                    if (board->isCellBomb(i, j))
+                    {
+                        char temp = '*';
+                        cout << ' ' << temp << " | ";
+                    }
+                    else
+                    {
+                        cout << ' ' << board->getAdjBombs(i, j) << " | ";
+                    }
+                }
+            }
+            // prints a line underneath
+            cout << '\n';
+            cout << '\t';
+            for (int j = 0; j < max_cols; j++)
+            {
+                cout << "-----";
+            }
+            cout << '-' << '\n';
         }
     }
 
-    void incrementAdjacents()
+    void printBoard()
     {
-        stack<pair<int, int>> temp = mines;
-
-        while (!temp.empty())
-        {
-            // get mine location
-            pair<int, int> xy = temp.top();
-            IncrementAdjacents(xy);
-            temp.pop();
-        }
+        PrintFirstRow();
+        PrintMatrix();
     }
 };
