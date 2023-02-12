@@ -1,5 +1,20 @@
 #include <vector>
-#include "cellNode.h"
+
+// cell DS in board
+struct CellNode
+{
+    int adjacentBombs;
+    bool isBomb;
+    bool visited;
+
+public:
+    CellNode()
+    {
+        adjacentBombs = 0;
+        isBomb = false;
+        visited = false;
+    }
+};
 
 class Board
 {
@@ -13,7 +28,6 @@ public:
     Board(int x, int y) : max_rows(x), max_cols(y)
     {
         initializeBoard();
-        // board = std::vector<std::vector<CellNode>>(max_rows, std::vector<CellNode>(max_cols, CellNode()));
     }
 
     void initializeBoard()
@@ -25,8 +39,6 @@ public:
             for (int j = 0; j < max_cols; j++)
             {
                 // non dynamic allocation
-                // board[max_rows][max_cols] = CellNode();
-                CellNode tempNode;
                 temp.push_back(CellNode());
             }
             board.push_back(temp);
@@ -83,19 +95,6 @@ public:
             }
         }
     }
-    // 3. Get Value(s) of cell.
-    CellNode *getCellValue(int x, int y)
-    {
-        if (checkForInvalidLocation(x, y) == false)
-        {
-            return &board[x][y];
-        }
-        else
-        {
-            // return null - node not found
-            return new CellNode(0);
-        }
-    }
     // 4.Reset cell value - adjacentbombs
     void resetValue(int x, int y)
     {
@@ -105,7 +104,7 @@ public:
         }
     }
     // 5. change node.visited to true
-    void markVisited(int pos_x, int pos_y)
+    void setVisited(int pos_x, int pos_y)
     {
         if (!checkForInvalidLocation(pos_x, pos_y))
         {
@@ -113,5 +112,46 @@ public:
         }
     }
 
-    // 6. change cellnode.opened - for print functionality
+    // 6. getters
+    bool isCellVisited(int x, int y)
+    {
+        if (!checkForInvalidLocation(x, y))
+        {
+            return board[x][y].visited;
+        }
+        return false;
+    }
+
+    bool isCellBomb(int x, int y)
+    {
+        if (!checkForInvalidLocation(x, y))
+        {
+            return board[x][y].isBomb;
+        }
+        return false;
+    }
+    int getAdjBombs(int x, int y)
+    {
+        if (!checkForInvalidLocation(x, y))
+        {
+            return board[x][y].adjacentBombs;
+        }
+        return -1;
+    }
+    int getDirX(int i)
+    {
+        if (i >= 0 && i < 8)
+        {
+            return directionX[i];
+        }
+        return -1;
+    }
+    int getDirY(int i)
+    {
+        if (i >= 0 && i < 8)
+        {
+            return directionY[i];
+        }
+        return -1;
+    }
 };
