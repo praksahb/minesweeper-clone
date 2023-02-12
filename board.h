@@ -83,8 +83,8 @@ public:
     {
         for (int i = 0; i < 8; i++)
         {
-            int adjX = x + directionX[i];
-            int adjY = y + directionY[i];
+            int adjX = x + getDirX(i);
+            int adjY = y + getDirY(i);
             if (checkForInvalidLocation(adjX, adjY) == false)
             {
                 if (board[adjX][adjY].isBomb == false)

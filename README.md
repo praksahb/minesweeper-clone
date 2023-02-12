@@ -8,29 +8,27 @@ Minesweeper:
 
 Implementation: 
 
-Main classes to be created: 
+Main classes: 
 
--Player- will have one function mainly.
-    1. stl::pair<int, int> inputXY(int x, int y) : returns x,y values(internally should check if legal values(>= 0 && < x || y))  
-    2. (Additional/Secondary) : void putFlag(int x, int y)
+1. Board - Contains cell struct (cellNode) and 2d vector board of type CellNode.
+   Main functions for connecting with the board values:-
+   - change cellNode values in board.
+   		-  get/set bool isBomb
+     	-  get/set int Adjacent Bombs
+     	-  mark visited true
+   - check for invalid values of x,y(indexes of 2d vector)
 
--DisplayBoard/ playBoard - will show the board in the console 
-displayBoard would be a 2d vector of char type.
+2. GameBoard - will be responsible for game logic, also using enum gameState to store current state of game. 
+   
+	3 Main Functions:
+ 		-  Print/Display Board
+   		-  checkCellDFS - using stack to store position of cell opens and marks cells as visited
+	 	-  fillMines - fills mines by connecting with board class
+		- initializeGameBoard - will create a random board after taking first input of pos_x and pos_y from user
+3. GameManager - will  handle the logic for playing the game with player with help of gameBoard and gameState
+   - Main Functions:
+   		- runLoops - will run two while loops for playing game.
+     	- changeBoardSize - 3 difficulties cannot use custom values for row and columns
+     	- playTurn and takeinput for playing a turn
 
-    1. printBoard() will be printing the whole board of size (m,n)
-    
-    2. initializegameBoard(std::pair<int, int> xycoords) : mines should not be spawned on xycoords
 
-    3. checkCell(int x, int y) function should be checking the valid x,y values in the gameBoard for int comparisons checking for:-
-        -1 for bomb,
-        0 for no adjacent bombs,
-        positive int value which signifies no. of bombs in adjacency.
-
--GameBoard - will be int matrix of size (x,y)
-    Public functions:-
-
-    1. generateBoardSize(int m, int n) : used to create a board of size m,n
-
-  
-        2.1. FillMines (user inputs value)
-        2.2. IncrementAdjacents() for each location, increment all 8 adjacent cells by 1.
