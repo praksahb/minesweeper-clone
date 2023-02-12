@@ -1,17 +1,14 @@
-Minesweeper: 
+# Minesweeper Clone 
 
-**[Rules]**
+## Rules
 
 - The board is divided into cells, with mines randomly distributed.
 - To win, you need to open all the cells.
 - The number on a cell shows the number of mines adjacent to it. Using this information, you can determine cells that are safe, and cells that contain mines.
 
-# Implementation: 
-
-## Using 3 Main classes: 
+## Implementation: Using 3 Main classes
 
 ### Board 
-
 Contains cell struct (cellNode) and 2d vector board of type CellNode.
    
 Main functions for connecting with the board values:
@@ -24,7 +21,6 @@ Main functions for connecting with the board values:
      	-  mark visited true
 	
 ### GameBoard 
-
 will be responsible for game logic, also using enum gameState to store current state of game. 
 
 2 Main Functions:-
@@ -34,7 +30,6 @@ will be responsible for game logic, also using enum gameState to store current s
  	Print/Display Board: for displaying on terminal
 
 ### GameManager 
-
 will  handle the logic for playing the game with player with help of gameBoard and gameState
 
 Main Functions:-
