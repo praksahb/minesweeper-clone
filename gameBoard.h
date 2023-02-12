@@ -1,5 +1,6 @@
 #include <iostream>
-#include <stack>
+#include "board.h"
+
 using namespace std;
 
 enum CellValue
@@ -10,168 +11,107 @@ enum CellValue
     notempty = 1,
 };
 
-class Board
-{
-    vector<vector<int>> board;
-    int max_rows, max_cols;
-
-    int directionX[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-    int directionY[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-public:
-    Board(int x, int y) : max_rows(x), max_cols(y), board(max_rows, vector<int>(max_cols, 0))
-    {
-    }
-
-    // add values to the board :-
-    // Public functions
-    // 1. add mines to the board
-    int addMine(int rowno, int colno)
-    {
-        if (checkForInvalidLocation(rowno, colno))
-        {
-            return 0;
-        }
-
-        if (board[rowno][colno] >= 0)
-        {
-            board[rowno][colno] = mine;
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    bool checkForInvalidLocation(int x, int y)
-    {
-        if (x < 0 || y < 0 || x >= max_rows || y >= max_cols)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    // 2. increment all the cells values by 1 adjacent to a mine
-    // if not a mine itself
-    void incrementAdjacents(int x, int y)
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            int adjX = x + directionX[i];
-            int adjY = y + directionY[i];
-            if (!checkForInvalidLocation(adjX, adjY))
-            {
-                if (board[adjX][adjY] >= 0)
-                {
-                    board[adjX][adjY]++;
-                }
-            }
-        }
-    }
-    // 3. int return Get Value of cell.
-    int getCellValue(int x, int y)
-    {
-        if (checkForInvalidLocation(x, y) == false)
-        {
-            return board[x][y];
-        }
-        else
-        {
-            return -2;
-        }
-    }
-};
-
 class GameBoard
 {
 private:
-    const int mine_val = -1;
     const int mx, my;
     int maxmines;
-    Board board;
-    stack<pair<int, int>> mine_stk;
+    Board *board;
 
-    void IncrementAdjacents(pair<int, int> xy)
+public:
+    GameBoard(int x, int y, int total_mines) : mx(x), my(y), maxmines(total_mines)
     {
-        // increment all adjacents by 1 if adjacents is not a bomb itself
-        for (int i = xy.first - 1; i <= xy.first + 1; i++)
+        board = new Board(x, y);
+    }
+    ~GameBoard()
+    {
+        delete board;
+    }
+
+    // can use return type of pointer to access location directly
+    //   or create public methods in board.h to access each cell variables
+    CellNode *getCellValue(int x, int y)
+    {
+        return board->getCellValue(x, y);
+    }
+
+    void fillMines(int start_x, int start_y)
+    {
+        int i = 0;
+        while (i < maxmines)
         {
-            for (int j = xy.second - 1; j <= xy.second + 1; j++)
+
+            int pos_x = rand() % mx;
+            int pos_y = rand() & my;
+
+            // return values: 0 is invalid,
+            // 1 is correct and
+            // -1 is already mine
+            int val = board->addMine(pos_x, pos_y, start_x, start_y);
+            if (val == 1)
             {
-                // boundary check
-                if (i >= 0 && i < mx && j >= 0 && j < my)
-                {
-                    // bomb check
-                    if (board[i][j] != mine_val && !(i == xy.first && j == xy.second))
-                    {
-                        board[i][j]++;
-                    }
-                }
+                i++;
+                // reset cellNode.adjacentBombs value
+                board->resetValue(pos_x, pos_y);
+                board->incrementAdjacents(pos_x, pos_y);
             }
         }
     }
 
-public:
-    GameBoard(int x, int y, int total_mines) : mx(x), my(y), maxmines(total_mines), board(mx, vector<int>(my, 0))
+    void printBoard()
     {
-    }
-    ~GameBoard()
-    {
-    }
-
-    stack<pair<int, int>> getMines()
-    {
-        return mine_stk;
-    }
-
-    int getCellValue(int x, int y)
-    {
-        // invalid index
-        if (x < 0 && x >= mx && y < 0 && y >= my)
+        // prints first row
+        cout << endl;
+        cout << "Coords   ";
+        for (int i = 0; i < my; i++)
         {
-            return -2;
+            cout << "  " << i << "  ";
         }
-
-        return GetVal(x, y);
-    }
-
-    // not very space optimum O(2^n) where n = no. of mines
-    void fillMines(pair<int, int> xy)
-    {
-        if (mine_stk.size() == maxmines)
+        cout << endl;
+        cout << '\t';
+        for (int i = 0; i < my; i++)
         {
-            return;
+            cout << "-----";
         }
-        int x = (rand() % mx);
-        int y = (rand() % my);
+        cout << '-' << endl;
 
-        if (x == xy.first && y == xy.second || board[x][y] != 0)
+        for (int i = 0; i < mx; i++)
         {
-            fillMines(xy);
-        }
-        else
-        {
-            board[x][y] = mine_val;
-            mine_stk.push({x, y});
-            fillMines(xy);
-        }
-    }
+            for (int j = 0; j < my; j++)
+            {
+                if (j == 0)
+                {
+                    cout << i << "\t| ";
+                }
+                CellNode *cell = board->getCellValue(i, j);
+                if (cell->opened == false)
+                {
+                    if (cell->isBomb)
+                    {
+                        string temp = u8"\xF0\x9F\x92\xA3";
 
-    void incrementAdjacents()
-    {
-        stack<pair<int, int>> temp = mine_stk;
-
-        while (!temp.empty())
-        {
-            // get mine location
-            pair<int, int> xy = temp.top();
-            IncrementAdjacents(xy);
-            temp.pop();
+                        cout << temp << " | ";
+                    }
+                    else if (cell->adjacentBombs > 0)
+                        cout << " " << cell->adjacentBombs << " | ";
+                    else
+                    {
+                        cout << " " << ' ' << " | ";
+                    }
+                }
+                else
+                {
+                    cout << "   | ";
+                }
+                cell = NULL;
+            }
+            cout << endl;
+            cout << '\t';
+            for (int j = 0; j < my; j++)
+            {
+                cout << "-----";
+            }
+            cout << '-' << endl;
         }
     }
 };

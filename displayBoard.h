@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stack>
 #include "gameBoard.h"
 
 enum GameState
@@ -46,7 +47,7 @@ public:
 
     void initializeGameBoard(int x, int y)
     {
-        gboard->fillMines();
+        gboard->fillMines(x, y);
         gameState = on;
         checkCellDFS(x, y);
     }
@@ -67,51 +68,52 @@ public:
             if (x >= 0 && x < maxXrows && y >= 0 && y < maxYcols)
             {
                 // check value from gboard
-                CellNode val = gboard->getCellValue(x, y);
-
+                CellNode *val = gboard->getCellValue(x, y);
+                cout << "Val.adj: " << val->adjacentBombs << '\n';
                 // check if location not yet checked
-                if (val.visited == false)
+                if (val->visited == false)
                 {
-                    val.visited = true;
-                    visitedNodes++;
-
-                    // Case 2 - bomb in cell
-                    if (val.isBomb == true)
+                    // Case 1 - bomb in cell
+                    if (val->isBomb == true)
                     {
                         // updateAllMines();
                         gameState = gameLost;
                         return;
                     }
-                    // Case 1 - blank cell
-                    else
-                    {
 
-                        if (val.adjacentBombs == 0)
+                    // Case 1.1 - blank cell
+                    if (val->isBomb == false && val->adjacentBombs == 0)
+                    {
+                        board[x][y] = '0';
+                        val->visited = true;
+                        visitedNodes++;
+
+                        if (visitedNodes == winCondition)
                         {
-                            board[x][y] = '0';
-                            if (visitedNodes == winCondition)
-                            {
-                                // updateAllMines();
-                                gameState = gameWon;
-                            }
-                            // add all 8 adjacent x,y values to stack
-                            for (int i = 0; i < 8; i++)
-                            {
-                                int adjx = x + directionX[i];
-                                int adjy = y + directionY[i];
-                                stk.push({adjx, adjy});
-                            }
+                            // update all cells
+                            // updateAllMines();
+                            gameState = gameWon;
+                            return;
                         }
-                        // Case 3 - Number in cell
-                        else
+                        // add all 8 adjacent x,y values to stack
+                        for (int i = 0; i < 8; i++)
                         {
-                            // value is no. of bombs around it (maxVal == 8)
-                            board[x][y] = static_cast<char>(val.adjacentBombs + '0');
-                            if (visitedNodes == winCondition)
-                            {
-                                // updateAllMines();
-                                gameState = gameWon;
-                            }
+                            int adjx = x + directionX[i];
+                            int adjy = y + directionY[i];
+                            stk.push({adjx, adjy});
+                        }
+                    }
+                    // Case 1.2 - Number in cell
+                    if (val->isBomb == false && val->adjacentBombs > 0)
+                    {
+                        // value is no. of bombs around it (maxVal == 8)
+                        board[x][y] = static_cast<char>(val->adjacentBombs + '0');
+                        val->visited = true;
+                        visitedNodes++;
+                        if (visitedNodes == winCondition)
+                        {
+                            // update all cells
+                            gameState = gameWon;
                         }
                     }
                 }

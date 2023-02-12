@@ -22,14 +22,28 @@ private:
         return n;
     }
 
-    void modifyBoardSize()
+    // change Difficulty
+    void changeBoardSize()
     {
-        cout << "Change the number of rows: ";
-        cin >> rows;
-        cout << "\nChange the number of mines: ";
-        cin >> col;
-        cout << "\nChange the number of mines: ";
-        cin >> maxmines;
+        cout << "Choose the difficulty level:\n";
+        cout << "1. Beginner: (9*9) cells, 10 mines.\n";
+        cout << "2. Intermediate: (16*16) cells, 40 mines.\n";
+        cout << "3. Expert: (30*16) cells, 99 mines.\n";
+        cout << "Enter your choice: ";
+        int n = 0;
+        cin >> n;
+        if (n == 1)
+        {
+            rows = 9, col = 9, maxmines = 10;
+        }
+        else if (n == 2)
+        {
+            rows = 16, col = 16, maxmines = 40;
+        }
+        else
+        {
+            rows = 30, col = 16, maxmines = 99;
+        }
         cout << endl;
     }
 
@@ -98,7 +112,8 @@ public:
             }
             else if (n == 2)
             {
-                modifyBoardSize();
+                // change Difficulty
+                changeBoardSize();
             }
             else
             {
