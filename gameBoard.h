@@ -42,7 +42,7 @@ public:
         {
 
             int pos_x = rand() % mx;
-            int pos_y = rand() & my;
+            int pos_y = rand() % my;
 
             // return values: 0 is invalid,
             // 1 is correct and
@@ -65,7 +65,11 @@ public:
         cout << "Coords   ";
         for (int i = 0; i < my; i++)
         {
-            cout << "  " << i << "  ";
+            if (i < 10)
+            {
+                cout << " ";
+            }
+            cout << ' ' << i << "  ";
         }
         cout << endl;
         cout << '\t';
@@ -88,9 +92,8 @@ public:
                 {
                     if (cell->isBomb)
                     {
-                        string temp = u8"\xF0\x9F\x92\xA3";
-
-                        cout << temp << " | ";
+                        string temp = "*";
+                        cout << ' ' << temp << " | ";
                     }
                     else if (cell->adjacentBombs > 0)
                         cout << " " << cell->adjacentBombs << " | ";
