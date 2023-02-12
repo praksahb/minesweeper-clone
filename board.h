@@ -45,7 +45,6 @@ public:
         }
     }
 
-    // add values to the board :-
     // Public functions
     // 1. add mines to the board
     int addMine(int rowno, int colno, int start_x, int start_y)
