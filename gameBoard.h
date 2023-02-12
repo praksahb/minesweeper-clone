@@ -99,7 +99,8 @@ public:
                     }
 
                     int adjBombs = board->getAdjBombs(pos_x, pos_y);
-                    // Case 1.1 - blank cell
+
+                    // Case 2.1 - blank cell
                     if (!isCellBomb && adjBombs == 0)
                     {
                         board->setVisited(pos_x, pos_y);
@@ -118,7 +119,7 @@ public:
                             stk.push({adjx, adjy});
                         }
                     }
-                    // Case 1.2 - Number in cell
+                    // Case 2.2 - Number in cell
                     if (!isCellBomb && adjBombs > 0)
                     {
                         // value is no. of bombs around it (maxVal == 8)
