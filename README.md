@@ -1,5 +1,7 @@
 # Minesweeper Clone 
 
+Replit link: https://replit.com/@praksahb/Minesweeper-clone
+
 ## Rules
 
 - The board is divided into cells, with mines randomly distributed.
