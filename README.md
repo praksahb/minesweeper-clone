@@ -1,6 +1,6 @@
 # Minesweeper Clone 
 ## Objective and Description
-Minesweeper clone is a command-line based game application that replicates the classic Minesweeper game found on Windows operating systems. The objective of the game is to clear a minefield without detonating any hidden mines. The game is built using C++ programming language and runs on the command line interface (CLI).
+Minesweeper clone is a command-line based game application that replicates the classic Minesweeper game found on Windows operating systems. The objective of the game is to clear a minefield without detonating any hidden mines. The game is built using C++ programming language and runs on the command line interface (CLI). To play the game, the player must uncover all cells on the game board that do not contain mines.
 
 Play on repl: https://replit.com/@praksahb/Minesweeper-clone
 
