@@ -9,7 +9,7 @@ Play on repl: https://replit.com/@praksahb/Minesweeper-clone
 The game has three difficulty levels (beginner, intermediate, and expert) that affect the size of the minefield and the number of mines hidden within it.
 
 ## installation  
-For creating build tried out cmake
+For creating build (using cmake)
 Steps for making executable and running it: 
 ```
 cmake -B build
